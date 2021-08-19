@@ -1,6 +1,6 @@
 class BooksController < ApplicationController
   before_action :set_book, only: [:show, :update, :destroy]
-
+  
   # GET /books
   def index
     @books = Book.all
@@ -15,8 +15,9 @@ class BooksController < ApplicationController
 
   # POST /books
   def create
+    @author = Author.find_or_create_by(name: params[:book][:author])
     @book = Book.new(book_params)
-
+    @book.author_id = @author.id
     if @book.save
       render json: @book, status: :created, location: @book
     else
@@ -46,6 +47,8 @@ class BooksController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def book_params
-      params.require(:book).permit(:author, :title, :image_url, :description, :year_published)
+      params.require(:book).permit(:author_id, :title, :image_url, :description, :year_published, author_attributes: [
+        :name
+      ])
     end
 end
